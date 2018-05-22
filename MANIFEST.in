@@ -1,0 +1,18 @@
+include MANIFEST.in
+include requirements.txt
+include *.json
+include *.md
+include *.py
+include *.txt
+recursive-include ekleel *.css
+recursive-include ekleel *.csv
+recursive-include ekleel *.html
+recursive-include ekleel *.ico
+recursive-include ekleel *.js
+recursive-include ekleel *.json
+recursive-include ekleel *.md
+recursive-include ekleel *.png
+recursive-include ekleel *.py
+recursive-include ekleel *.svg
+recursive-include ekleel *.txt
+recursive-exclude ekleel *.pyc
