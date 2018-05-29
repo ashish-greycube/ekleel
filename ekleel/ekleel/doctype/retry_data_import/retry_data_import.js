@@ -38,10 +38,11 @@ frappe.ui.form.on('Retry data import', {
 			frappe.call({
 				method: "ekleel.api.upload_file",
 				args: {
-					path: 'master1.local/public' + frm.doc.import_file,
+					path:  frm.doc.import_file,
 					transactiontype: transactiontype,
 					pos_transaction_date: pos_transaction_date,
-					filename:filename
+					filename:filename,
+					client:'yes'
 
 				},
 				callback: (r) => {

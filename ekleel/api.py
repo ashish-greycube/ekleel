@@ -6,7 +6,7 @@ from frappe.utils import encode, cstr, get_link_to_form, get_site_base_path, tod
 from frappe.core.doctype.data_import.data_import import import_file_by_path
 from frappe.core.doctype.data_import import importer
 from frappe.utils.csvutils import read_csv_content
-from frappe.utils.file_manager import save_file, get_file
+from frappe.utils.file_manager import save_file, get_file,get_file_path
 from datetime import datetime, timedelta
 
 
@@ -73,8 +73,13 @@ def make_sync_log(status,transactiontype,sync_details,status_color,pos_transacti
 
 
 @frappe.whitelist()
-def upload_file(path,transactiontype,pos_transaction_date,filename):
+def upload_file(path,transactiontype,pos_transaction_date,filename,client=None):
     try:
+        if client=='yes':
+            print client
+            print (get_file_path(path))
+            path=get_file_path(path)
+            print path
         with open(encode(path), 'r') as f:
 		    content = f.read()
         rows = read_csv_content(content)
