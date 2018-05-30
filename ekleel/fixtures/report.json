@@ -1,0 +1,31 @@
+[
+ {
+  "add_total_row": 0, 
+  "apply_user_permissions": 1, 
+  "disabled": 0, 
+  "docstatus": 0, 
+  "doctype": "Report", 
+  "is_standard": "No", 
+  "javascript": null, 
+  "json": null, 
+  "letter_head": null, 
+  "modified": "2018-05-30 08:55:47.513854", 
+  "module": "Ekleel", 
+  "name": "Pixel POS Daily Summary", 
+  "query": "SELECT \"Income Breakup\" As \"Description:Text:250\" , \"\" as \"Amount:Text:250\"\nunion all\nselect JEA.account  , TRUNCATE(JEA.credit,3)  from `tabJournal Entry` JE INNER JOIN\n`tabJournal Entry Account` JEA on JE.name = JEA.parent\nwhere \nJE.posting_date =  ADDDATE(CURDATE(), INTERVAL -1 DAY)and \nJE.company = \"Ekleel Restaurant\" and JE.docstatus=1 and\nJEA.account in (\"Food Income - ER\",\"Beverage Income - ER\")\n\nunion all\nselect \"Total Income\" as `Description`,  TRUNCATE(sum(JEA.credit),3) as `Amount` from `tabJournal Entry` JE INNER JOIN\n`tabJournal Entry Account` JEA on JE.name = JEA.parent\nwhere \nJE.posting_date =  ADDDATE(CURDATE(), INTERVAL -1 DAY)and \nJE.company = \"Ekleel Restaurant\" and JE.docstatus=1 and\nJEA.account in (\"Food Income - ER\",\"Beverage Income - ER\")\n\nunion all\nSELECT \"Payment Modewise Breakup\" , \"\"\nunion all\nselect JEA.PARTY as `Description`,  TRUNCATE(JEA.debit,3) as `Amount` from `tabJournal Entry` JE INNER JOIN\n`tabJournal Entry Account` JEA on JE.name = JEA.parent\nwhere \nJE.posting_date =  ADDDATE(CURDATE(), INTERVAL -1 DAY)and \nJE.company = \"Ekleel Restaurant\" and JE.docstatus=1 and\nJEA.account in (\"Debtors - ER\")\ngroup by JEA.PARTY\n\nunion all\nSELECT \"Cost of Goods Sold\" , \"\"\n\nunion all\nselect JEA.account as `Description`,  TRUNCATE(JEA.debit,3) as `Amount` from `tabJournal Entry` JE INNER JOIN\n`tabJournal Entry Account` JEA on JE.name = JEA.parent\nwhere \nJE.posting_date =  ADDDATE(CURDATE(), INTERVAL -1 DAY)and \nJE.company = \"Ekleel Restaurant\" and JE.docstatus=1 and\nJEA.account in (\"Cost of Food - ER\",\"Cost of Beverage - ER\")\n\nunion all\nSELECT \"Supplier-wise Purchase\" , \"\"\n\nunion all\nselect JEA.PARTY as `Description`, ROUND(JEA.credit,3) as `Amount` from `tabJournal Entry` JE INNER JOIN\n`tabJournal Entry Account` JEA on JE.name = JEA.parent\nwhere \nJE.posting_date =  ADDDATE(CURDATE(), INTERVAL -1 DAY)and \nJE.company = \"Ekleel Restaurant\" and JE.docstatus=1 and\nJEA.account in (\"Creditors - ER\")\ngroup by JEA.PARTY\n\nunion all\nselect \"Total Purchase\" as `Description`,  TRUNCATE(sum(JEA.credit),3) as `Amount` from `tabJournal Entry` JE INNER JOIN\n`tabJournal Entry Account` JEA on JE.name = JEA.parent\nwhere \nJE.posting_date =  ADDDATE(CURDATE(), INTERVAL -1 DAY)and \nJE.company = \"Ekleel Restaurant\" and JE.docstatus=1 and\nJEA.account in (\"Creditors - ER\");", 
+  "ref_doctype": "Journal Entry", 
+  "report_name": "Pixel POS Daily Summary", 
+  "report_type": "Query Report", 
+  "roles": [
+   {
+    "role": "Accounts User"
+   }, 
+   {
+    "role": "Accounts Manager"
+   }, 
+   {
+    "role": "Auditor"
+   }
+  ]
+ }
+]

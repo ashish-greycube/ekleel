@@ -129,3 +129,19 @@ scheduler_events = {
     },
 
 }
+fixtures = [
+    # 	{
+	# 	"dt":"Custom Script",
+	# 	"filters":[
+	# 		["name", "in", [
+	# 		"Sales Order-Client"]],
+	# 	]
+	# },
+	{
+	"dt":"Report",
+			"filters":[
+			["name", "in", [
+			"Pixel POS Daily Summary"]],
+		]
+	}
+]
