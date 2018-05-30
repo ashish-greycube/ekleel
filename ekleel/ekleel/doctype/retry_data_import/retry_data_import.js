@@ -26,7 +26,7 @@ frappe.ui.form.on('Retry data import', {
 			transactiontype = frm.doc.import_file.substring(frm.doc.import_file.indexOf('s') + 2, frm.doc.import_file.indexOf('DATA'))
 			filename = frm.doc.import_file.substr(frm.doc.import_file.indexOf('s') + 2)
 			if (transactiontype == 'POS') {
-				transactiontype = 'POS Total';
+				transactiontype = 'POS Summary';
 			}
 			else if(transactiontype == 'COGS') {
 				transactiontype = 'Cost of Goods Sold';

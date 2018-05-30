@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 import frappe
 from frappe import _
 import os
+import time
 from frappe.utils import encode, cstr, get_link_to_form, get_site_base_path, today,get_backups_path,get_datetime,split_emails
 from frappe.core.doctype.data_import.data_import import import_file_by_path
 from frappe.core.doctype.data_import import importer
@@ -11,48 +12,21 @@ from datetime import datetime, timedelta
 
 
 def send_email(status,transactiontype,error_status=None,pos_transaction_date=None,log_name=None,attachment=None):
-	if(status=='Successful'):
-		subject = """Ekleel data imported Successful for %s dated %s as on """%(transactiontype,pos_transaction_date) + (datetime.now()).strftime("%Y%m%d")
-		message ="""<h3>Ekleel POS data imported Successfully</h3><p>Hi there,<br> This is just to inform you
-		that your POS data for %s was successfully imported to ERPNext account. So relax!</p>
-		""" % (transactiontype)
-	elif(status=='Failed') :
+    if not frappe.db:
+	    frappe.connect()    
+
+    if status=='Successful':
+        subject = """Ekleel data imported Successful for %s dated %s as on """%(transactiontype,pos_transaction_date) + (datetime.now()).strftime("%Y%m%d")
+        message ="""<h3>Ekleel POS data imported Successfully</h3><p>Hi there,<br> This is just to inform you that your POS data for %s was successfully imported to ERPNext account. So relax!</p>""" % (transactiontype)
+    elif status=='Failed':
 		subject = """[Warning] Ekleel data import failed for %s dated %s as on """%(transactiontype,pos_transaction_date) + (datetime.now()).strftime("%Y%m%d")
-		message ="""<h3>Ekleel POS data import Failed</h3><p>Oops, your automated import to ERPNext
-		failed for - %s</p>
-		<p><h4>Error message: </h4><br>
-		<pre><code>%s</code></pre>
-		</p>
-        <p><h4>Detailed sync log at :%s </h4><br>
-        <hr>
-        <h2>Instructions</h2>
-        <ol type="1">
-        <li>Download the attached file</li>
-        <li>Correct the file content with respect to above mentioned error message</li>
-        <li>Retry the data import at %s</li>
-        </ol> """ % (transactiontype,error_status,get_link_to_form('Pixel Point Sync Log',log_name,'LogLink'),get_link_to_form('Retry data import','Retry data import','Retry'))
-
-        else:
-            subject = """[Warning] Ekleel data import failed for %s dated %s as on """%(transactiontype,pos_transaction_date) + (datetime.now()).strftime("%Y%m%d")
-            message ="""<h3>Ekleel POS data import Failed</h3><p>Oops, your automated import to ERPNext
-            failed for - %s</p>
-            <p><h4>Error message: </h4><br>
-            <pre><code>%s</code></pre>
-            </p>
-            <p><h4>Detailed sync log at :%s </h4><br>
-            <hr>
-            <h2>Instructions</h2>
-            <ol type="1">
-            <li>It appears no file was kept by Pixel point POS</li>
-            <li>Check with pixel point POS and get the required file</li>
-            <li>Retry the data import at %s</li>
-            </ol> """ % (transactiontype,error_status,get_link_to_form('Pixel Point Sync Log',log_name,'Log link'),get_link_to_form('Retry data import','Retry data import','Retry'))
-
-	if not frappe.db:
-	    frappe.connect()
-
-	recipients = split_emails(frappe.db.get_value("PixelPoint Settings", None, "send_notifications_to"))
-        frappe.sendmail(recipients=recipients, subject=subject, message=message,attachments=attachment)
+		message ="""<h3>Ekleel POS data import Failed</h3><p>Oops, your automated import to ERPNext	failed for - %s</p><p><h4>Error message: </h4><br><pre><code>%s</code></pre></p><p><h4>Detailed sync log at :%s </h4><br><hr><h2>Instructions</h2><ol type="1"><li>Download the attached file</li><li>Correct the file content with respect to above mentioned error message</li><li>Retry the data import at %s</li></ol> """ % (transactiontype,error_status,get_link_to_form('Pixel Point Sync Log',log_name,'LogLink'),get_link_to_form('Retry data import','Retry data import','Retry'))
+    elif status=='File not found failure':
+        subject = """[Warning] Ekleel data import failed for %s dated %s as on """%(transactiontype,pos_transaction_date) + (datetime.now()).strftime("%Y%m%d")
+        message ="""<h3>Ekleel POS data import Failed</h3><p>Oops, your automated import to ERPNext failed for - %s</p><p><h4>Error message: </h4><br><pre><code>%s</code></pre></p><p><h4>Detailed sync log at :%s </h4><br><hr><h2>Instructions</h2><ol type="1"><li>It appears no file was kept by Pixel point POS</li><li>Check with pixel point POS and get the required file</li><li>Retry the data import at %s</li></ol> """ % (transactiontype,error_status,get_link_to_form('Pixel Point Sync Log',log_name,'Log link'),get_link_to_form('Retry data import','Retry data import','Retry'))
+        
+    recipients = split_emails(frappe.db.get_value("PixelPoint Settings", None, "send_notifications_to"))
+    frappe.sendmail(recipients=recipients, subject=subject, message=message,attachments=attachment,now=True)
 
 
 def make_sync_log(status,transactiontype,sync_details,status_color,pos_transaction_date=None,transaction_link=None):
@@ -76,10 +50,7 @@ def make_sync_log(status,transactiontype,sync_details,status_color,pos_transacti
 def upload_file(path,transactiontype,pos_transaction_date,filename,client=None):
     try:
         if client=='yes':
-            print client
-            print (get_file_path(path))
             path=get_file_path(path)
-            print path
         with open(encode(path), 'r') as f:
 		    content = f.read()
         rows = read_csv_content(content)
@@ -139,6 +110,6 @@ def upload():
     if not frappe.has_permission("Journal Entry", "create"):
         raise frappe.PermissionError
 #Import files to JV
-    upload_file(pos_filepath,'POS Total',yesterday,pos_filename)
+    upload_file(pos_filepath,'POS Summary',yesterday,pos_filename)
     upload_file(cogs_filepath,'Cost of Goods Sold',yesterday,cogs_filename)
     upload_file(purdata_filepath,'Purchase data',yesterday,purdata_filename)
