@@ -87,11 +87,11 @@ def upload_file(path,transactiontype,pos_transaction_date,filename,client=None):
         send_email('File not found failure',transactiontype,frappe.get_traceback(),pos_transaction_date,log_name)
         return log_name
 
-	if error:
-		frappe.db.rollback()
-	else:
-		frappe.db.commit()
-	return {"error": error}
+    if error:
+        frappe.db.rollback()
+    else:
+        frappe.db.commit()
+    return {"error": error}
 
 @frappe.whitelist()
 # main function
