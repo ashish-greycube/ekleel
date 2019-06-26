@@ -52,7 +52,7 @@ def upload_file(path,transactiontype,pos_transaction_date,filename,client=None):
         if client=='yes':
             path=get_file_path(path)
         with open(encode(path), 'r') as f:
-		    content = f.read()
+            content = f.read()
         rows = read_csv_content(content)
         result=importer.upload(rows,submit_after_import=True,update_only =False,ignore_encoding_errors=True, no_email=True)
         # generate JV name        
